@@ -1,0 +1,19 @@
+# Entorno
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+
+# Base vectorial persistente (se regenera con embedder.py)
+db/*
+!db/.gitkeep
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

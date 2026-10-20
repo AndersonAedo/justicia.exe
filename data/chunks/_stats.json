@@ -1,0 +1,26 @@
+{
+  "codigo_penal": {
+    "documento": "Código Penal",
+    "archivo": "codigo_penal_spij.pdf",
+    "chunks": 575,
+    "articulos_detectados": 575,
+    "duplicados_o_referencias_descartadas": 0,
+    "primer_articulo": "I",
+    "ultimo_articulo": "452",
+    "libros": {
+      "Libro Primero": 114,
+      "Libro Segundo": 436,
+      "Libro Tercero": 16
+    }
+  },
+  "constitucion": {
+    "documento": "Constitución Política del Perú",
+    "archivo": "constitucion_2025-12.pdf",
+    "chunks": 211,
+    "articulos_detectados": 211,
+    "duplicados_o_referencias_descartadas": 0,
+    "primer_articulo": "1",
+    "ultimo_articulo": "206",
+    "libros": {}
+  }
+}
