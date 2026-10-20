@@ -111,9 +111,36 @@ Pruebas con `temperature=0.2`, `num_ctx=4096`, en CPU (sin GPU), 31.9 GB de RAM:
 
 ---
 
-## Pendiente — Cierre de integración con B
+## 2026-10-20 — Integración de Capa de Aplicación, API y UI (Rol B)
 
-- Validar el contrato JSON final (`respuesta`, `fuentes`, `citas_invalidas`, `requiere_revision`, `modo`, `latencia_s`) contra la API y la UI.
-- Revisar el panel de transparencia con los campos de metadatos acordados.
-- Completar la evaluación de `llama3.1:8b` si se decide usarlo.
-- Ejecutar las 20–30 consultas de aceptación (Paso 22) y registrar resultados.
+- **Backend FastAPI (`src/api.py`):**
+  - Implementación sobre el contrato directo de A: `src.rag_pipeline.responder()`.
+  - Carga perezosa del pipeline (`_responder()` y `_db_status()`) para garantizar que `/health` y Swagger `/docs` estén disponibles de inmediato sin bloquear en imports pesados.
+  - Endpoints implementados:
+    - `GET /`: Metadatos y enlaces de documentación.
+    - `GET /health`: Estado consolidado del sistema (`ollama`, `db`, conteo de `chunks` y `subchunks`).
+    - `POST /chat`: Procesamiento conversacional con validación Pydantic, recuperación contextual e inyección de historial.
+    - `GET /sesiones/{id}/historial`: Inspección de auditoría de turnos persistidos.
+    - `DELETE /sesiones/{id}`: Limpieza y reseteo de diálogo.
+
+- **Historial Persistente en SQLite (`src/db.py`):**
+  - Esquema estructurado en tabla `turnos` con modo `WAL` activado para máxima concurrencia local.
+  - Almacena la traza exhaustiva: `id`, `sesion_id`, `rol`, `contenido`, `fuentes` en JSON, `en_alcance`, `motivo`, `modo`, `advertencia`, `citas_invalidas`, `requiere_revision`, `latencia_s` y `modelo`.
+  - La función `obtener_historial_llm()` formatea los últimos turnos en la estructura de pares requerida por el pipeline de A: `[{"usuario": "...", "asistente": "..."}]`, garantizando continuidad conversacional sin romper la sintaxis `[S1]`, `[S2]`.
+
+- **Frontend Streamlit con Panel de Transparencia (`app/ui.py`):**
+  - Experiencia conversacional en dos paneles (chat principal y sidebar de transparencia).
+  - El Panel de Transparencia expone:
+    - Estado de salud en vivo (Ollama y base vectorial).
+    - Metadatos de auditoría: modo (`llm`, `guardrail`, `fallback`), modelo, latencia y badges de alcance.
+    - Fragmentos normativos exactos recuperados, documento, artículo y score de similitud.
+    - Alertas destacadas si la respuesta requiere revisión humana o contiene citas dudosas.
+  - Control de sesiones: generación de UUID por sesión, sincronización vía query params (`?sesion=...`) y botón de reseteo.
+
+- **Script de Automatización PowerShell (`run.ps1`):**
+  - Orquestador de arranque que valida prerequisites (Ollama, modelo, índice Chroma), inicia background processes para uvicorn y streamlit, y abre el navegador por defecto en `http://127.0.0.1:8501`.
+
+- **Suites de Pruebas Unitarias y de Guardrails:**
+  - `tests/test_db.py`: 7 pruebas unitarias de persistencia, orden cronológico, aislamiento multi-sesión y formateo LLM.
+  - `tests/test_api.py`: 9 pruebas unitarias y de integración de endpoints, validaciones Pydantic y manejo de errores 422 y 503.
+  - `tests/test_guardrails.md`: matriz de 10 casos de evaluación estricta de límites normativos y anti-inyección.

@@ -49,3 +49,9 @@ DOCUMENTOS = {
         "archivo": "codigo_penal_spij.pdf",
     },
 }
+
+# --- Capa de aplicación (rol B) ---
+HISTORY_DB = Path(os.getenv("MJ_HISTORY_DB", str(DB_DIR / "historial.sqlite3")))
+HISTORY_TURNS = int(os.getenv("MJ_HISTORY_TURNS", "3"))
+MAX_MENSAJE_CHARS = int(os.getenv("MJ_MAX_MENSAJE_CHARS", "2000"))
+API_URL = os.getenv("MJ_API_URL", "http://127.0.0.1:8000").rstrip("/")
